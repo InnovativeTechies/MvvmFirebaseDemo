@@ -73,7 +73,7 @@ namespace MvvmLightFirebaseDemo.iOS.implementations
         public async Task<GeneralResponse> LogoutAsync()
         {
             _user = null;
-            
+            User = null;
 
             var task = new Task<GeneralResponse>(
                 () =>
