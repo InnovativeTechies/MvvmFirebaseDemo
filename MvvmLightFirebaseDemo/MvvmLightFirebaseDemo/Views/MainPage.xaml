@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="MvvmLightFirebaseDemo.Views.MainPage"
+             BindingContext="{Binding Main, Source={StaticResource ViewModelLocator}}"
+             Title="{Binding Title}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Label Text="Messages" HorizontalTextAlignment="Center"
+               VerticalTextAlignment="Center" IsVisible="{Binding AuthenticatedControlsVisible}" />
+        <ListView Grid.Row="1" ItemsSource="{Binding Messages, Mode= TwoWay}" IsVisible="{Binding AuthenticatedControlsVisible}" SeparatorVisibility="None">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <ViewCell>
+                        <ViewCell.View>
+                            <StackLayout Padding = "10" Orientation = "Horizontal">
+                                <Label Text="{Binding DisplayName}" FontAttributes="Bold" />
+                                <Label Text="{Binding Text}" />
+                            </StackLayout>
+                        </ViewCell.View>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        <Grid Grid.Row="2">
+            <StackLayout IsVisible="{Binding LoginButtonsAreVisible}" Margin="15">
+                <Button Text="{Binding SignInWithAccount}" Command="{Binding ShowSignInPageCommand}"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Fill"  />
+
+                <Button Text="{Binding SignInWithFacebook}" Command="{Binding SignInWithFacebookCommand}"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Fill" />
+
+                <Button
+                    Margin="0,20,0,0" Text="{Binding SignUpWithAccount}"
+                    Command="{Binding ShowCreateUserPageCommand}"
+                    VerticalOptions="Center"
+                    HorizontalOptions="Fill" />
+              
+            </StackLayout>
+          
+            <StackLayout IsVisible="{Binding AuthenticatedControlsVisible}" Orientation="Vertical">
+                <Image Source="{Binding ProfilePhotoUrl}"/>
+                <Button Text="{Binding LogoutAccount}" Command="{Binding LogoutCommand}"
+                        VerticalOptions="Center"
+                        HorizontalOptions="Fill" />
+            </StackLayout>
+
+        </Grid>
+    </Grid>
+
+</ContentPage>

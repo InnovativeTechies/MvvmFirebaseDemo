@@ -1,0 +1,19 @@
+﻿using System.Threading.Tasks;
+using MvvmLightFirebaseDemo.Models;
+
+namespace MvvmLightFirebaseDemo.AuthManagers
+{
+    public interface IFirebaseManager
+    {
+        bool IsAuthenticated{ get; }
+
+        FirebaseUser User{ get; }
+
+        Task<FirebaseUser> FirebaseLoginWithFacebookAsync(string token);
+        Task<FirebaseUser> CreateUserWithEmailPasswordAsync(string email, string password, string displayName);
+        Task<FirebaseUser> LoginWithEmailPasswordAsync(string email, string password);
+        Task<GeneralResponse> LogoutAsync();
+        void LoadUser();
+        void SaveUser();
+    }
+}

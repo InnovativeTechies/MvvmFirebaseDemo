@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<views:BaseView xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                xmlns:views="clr-namespace:MvvmLightFirebaseDemo.Views;assembly=MvvmLightFirebaseDemo"
+                x:Class="MvvmLightFirebaseDemo.Views.SignInPage">
+
+    <StackLayout Orientation="Vertical" Margin="20">
+        <Entry Placeholder="{Binding EmailPlaceholder}" Text="{Binding Email}" Keyboard="Email" />
+        <Entry Placeholder="{Binding PasswordPlaceholder}" Text="{Binding Password}" IsPassword="True" />
+        <Button Text="{Binding SignIn}" Command="{Binding LoginCommand}" />
+
+    </StackLayout>
+
+</views:BaseView>
