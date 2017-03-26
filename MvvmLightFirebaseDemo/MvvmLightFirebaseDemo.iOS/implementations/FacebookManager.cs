@@ -12,7 +12,7 @@ namespace MvvmLightFirebaseDemo.iOS.implementations
             var loginManager = new LoginManager();
 
             loginManager.Init();
-            loginManager.LoginBehavior = LoginBehavior.SystemAccount;
+            loginManager.LoginBehavior = LoginBehavior.Native;
 
 
             var loginResult = await loginManager.LogInWithReadPermissionsAsync(new[] {"public_profile", "user_birthday"},

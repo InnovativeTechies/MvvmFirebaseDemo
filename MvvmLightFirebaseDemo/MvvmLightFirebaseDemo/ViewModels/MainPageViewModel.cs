@@ -1,11 +1,9 @@
 using System.Collections.Generic;
-using System.ServiceModel;
+using System.Linq;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Ioc;
-using GalaSoft.MvvmLight.Views;
-using Microsoft.Practices.ServiceLocation;
-using MvvmLightFirebaseDemo.Bootstrap;
+using MvvmLightFirebaseDemo.AuthManagers;
 using MvvmLightFirebaseDemo.Services;
 using MvvmLightFirebaseDemo.Views;
 using Xamarin.Forms;
@@ -16,11 +14,12 @@ namespace MvvmLightFirebaseDemo.ViewModels
 	public class MainPageViewModel : ViewModelBase
 	{
 		public string Title => "MvvmFirebaseDemo";
-		public string SignInWithAccount => "Sign in";
-	    public string SignUpWithAccount => "Sign up";
-        public string LogoutAccount => "Logout";
-        public string SignInWithFacebook => "Sign in with Facebook";
-
+		public string SignInWithAccountText => "Sign in";
+	    public string SignUpWithAccountText => "Sign up";
+        public string LogoutAccountText => "Logout";
+        public string SignInWithFacebookText => "Sign in with Facebook";
+	    public string NewCommentSendText => "Send";
+	
 	    public bool LoginButtonsAreVisible
 		{
 		    get { return _loginButtonsAreVisible; }
@@ -33,10 +32,10 @@ namespace MvvmLightFirebaseDemo.ViewModels
 	        set { Set(ref _authenticatedControlsVisible, value);}
 	    }
 
-	    public List<Message> Messages
+	    public List<Comment> Comments
 	    {
-	        get { return _messages; }
-	        set { Set(ref _messages, value);}
+	        get { return _comments; }
+	        set { Set(ref _comments, value);}
 	    }
 
 	    public string ProfilePhotoUrl
@@ -45,16 +44,34 @@ namespace MvvmLightFirebaseDemo.ViewModels
 	        set { Set(ref _profilePhotoUrl, value);}
 	    }
 
+	    public string NewComment
+	    {
+	        get { return _newComment; }
+	        set { Set(ref _newComment, value);}
+	    }
+
+	    public Comment LastComment
+	    {
+	        get { return _lastComment; }
+	        set { Set(ref _lastComment, value);}
+	    }
+
 	    private readonly FacebookSignInPageViewModel _facebookSignInPageViewModel = new FacebookSignInPageViewModel();
         private readonly SignInPageViewModel _signInPageViewModel = new SignInPageViewModel();
 	    private readonly LogoutPageViewModel _logoutPageViewModel = new LogoutPageViewModel();
-	    private List<Message> _messages = new List<Message>();
+	    private readonly IFirebaseManager _firebaseManager = SimpleIoc.Default.GetInstance<IFirebaseManager>();
+	    private readonly ICommentService _messagingService = SimpleIoc.Default.GetInstance<ICommentService>();
+		private const string _topic = "/topics/topic1";
+
+	    private List<Comment> _comments = new List<Comment>();
 
 	    private bool _loginButtonsAreVisible;
         private bool _authenticatedControlsVisible;
 	    private string _profilePhotoUrl;
+	    private string _newComment;
+	    private Comment _lastComment;
 
-        public RelayCommand AppearingCommand =>
+	    public RelayCommand AppearingCommand =>
             new RelayCommand(
                 () =>
                 {
@@ -65,15 +82,22 @@ namespace MvvmLightFirebaseDemo.ViewModels
 					{
 					    ProfilePhotoUrl = AuthService.Instance.User.PhotoUrl;
 
-                        Messages = new List<Message>
-                        		{
-                        		     new Message{ Text = "123", DisplayName = "aa" },
-                        		     new Message{ Text = "456", DisplayName = "aa" }
-                        		};
-                    }
+                        _firebaseManager.InitTopic(_topic);
+					   
+					    Comments = _messagingService.Comments.ToList();
+					}
                 });
 
-        public RelayCommand ShowSignInPageCommand =>
+
+	    public RelayCommand SendNewCommentCommand =>
+	        new RelayCommand(
+	            async () =>
+	            {
+                    await _firebaseManager.SendComment(_topic, NewComment);
+	                NewComment = "";
+	            });
+
+	    public RelayCommand ShowSignInPageCommand =>
             new RelayCommand(
                 async () =>
                 {
@@ -115,6 +139,15 @@ namespace MvvmLightFirebaseDemo.ViewModels
         public MainPageViewModel()
         {
             LoginButtonsAreVisible = !AuthService.Instance.Authenticated;
+
+            _messagingService.NewCommentReceived += (sender, comment) =>
+            {
+                Comments = _messagingService.Comments.ToList();
+
+                LastComment = Comments.Last();
+            };
+
+
             ////if (IsInDesignMode)
             ////{
             ////    // Code runs in Blend --> create design time data.

@@ -12,6 +12,7 @@ using MvvmLightFirebaseDemo.AuthManagers;
 using MvvmLightFirebaseDemo.Models;
 using PCLAppConfig;
 using PerpetualEngine.Storage;
+using MvvmLightFirebaseDemo.Services;
 
 namespace MvvmLightFirebaseDemo.Droid
 {
@@ -33,7 +34,9 @@ namespace MvvmLightFirebaseDemo.Droid
 
             SetupFacebook();
             SetupFirebase();
-		
+
+            SimpleIoc.Default.Register<ICommentService, CommentService>();
+
             LoadApplication(new App());
 
 			

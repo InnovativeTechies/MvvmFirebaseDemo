@@ -4,56 +4,67 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="MvvmLightFirebaseDemo.Views.MainPage"
              BindingContext="{Binding Main, Source={StaticResource ViewModelLocator}}"
-             Title="{Binding Title}">
+             Title="{Binding Title}"
+             BackgroundColor="Aqua">
 
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
-        <Label Text="Messages" HorizontalTextAlignment="Center"
-               VerticalTextAlignment="Center" IsVisible="{Binding AuthenticatedControlsVisible}" />
-        <ListView Grid.Row="1" ItemsSource="{Binding Messages, Mode= TwoWay}" IsVisible="{Binding AuthenticatedControlsVisible}" SeparatorVisibility="None">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <ViewCell>
-                        <ViewCell.View>
-                            <StackLayout Padding = "10" Orientation = "Horizontal">
-                                <Label Text="{Binding DisplayName}" FontAttributes="Bold" />
-                                <Label Text="{Binding Text}" />
-                            </StackLayout>
-                        </ViewCell.View>
-                    </ViewCell>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-        <Grid Grid.Row="2">
-            <StackLayout IsVisible="{Binding LoginButtonsAreVisible}" Margin="15">
-                <Button Text="{Binding SignInWithAccount}" Command="{Binding ShowSignInPageCommand}"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Fill"  />
+	<ScrollView>
+        <Grid>
+		    <Grid.RowDefinitions>
+                <RowDefinition Height="400" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+		   <ListView  ItemsSource="{Binding Comments, Mode= TwoWay}" IsVisible="{Binding AuthenticatedControlsVisible}"
+                      SeparatorVisibility="None" VerticalOptions = "FillAndExpand" SelectedItem ="{Binding LastComment}" HasUnevenRows="True">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <ViewCell.View>
+                                <StackLayout Padding="4" Orientation="Horizontal">
+                                    <StackLayout Padding="10" Orientation="Vertical">
+                                        <Image Source="{Binding User.PhotoUrl}" />
+                                        <Label FontSize="10" Text="{Binding User.DisplayName}" TextColor="Black" FontAttributes="Bold" />
+                                    </StackLayout>
+                                    <Label Text="{Binding Text}" TextColor="Black" />
+                                </StackLayout>
+                            </ViewCell.View>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+		   <Grid Grid.Row="1">
+                <StackLayout IsVisible="{Binding LoginButtonsAreVisible}" Margin="15">
+                    <Button Text="{Binding SignInWithAccountText}" Command="{Binding ShowSignInPageCommand}"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Fill" />
 
-                <Button Text="{Binding SignInWithFacebook}" Command="{Binding SignInWithFacebookCommand}"
-                        VerticalOptions="Center"
-                        HorizontalOptions="Fill" />
+                    <Button Text="{Binding SignInWithFacebookText}" Command="{Binding SignInWithFacebookCommand}"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Fill" />
 
-                <Button
-                    Margin="0,20,0,0" Text="{Binding SignUpWithAccount}"
-                    Command="{Binding ShowCreateUserPageCommand}"
-                    VerticalOptions="Center"
-                    HorizontalOptions="Fill" />
-              
-            </StackLayout>
-          
-            <StackLayout IsVisible="{Binding AuthenticatedControlsVisible}" Orientation="Vertical">
-                <Image Source="{Binding ProfilePhotoUrl}"/>
-                <Button Text="{Binding LogoutAccount}" Command="{Binding LogoutCommand}"
+                    <Button
+                        Margin="0,20,0,0" Text="{Binding SignUpWithAccountText}"
+                        Command="{Binding ShowCreateUserPageCommand}"
                         VerticalOptions="Center"
                         HorizontalOptions="Fill" />
-            </StackLayout>
 
-        </Grid>
-    </Grid>
+                </StackLayout>
 
-</ContentPage>
+                <StackLayout IsVisible="{Binding AuthenticatedControlsVisible}" Orientation="Vertical">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <Editor Text="{Binding NewComment}" BackgroundColor="White" TextColor="Black" Keyboard="Chat" />
+                        <Button Grid.Column="1" Text="{Binding NewCommentSendText}" Command="{Binding SendNewCommentCommand}" />
+                    </Grid>
+                    <Image Source="{Binding ProfilePhotoUrl}" />
+                    <Button Text="{Binding LogoutAccountText}" Command="{Binding LogoutCommand}"
+                            VerticalOptions="Center"
+                            HorizontalOptions="Fill" />
+                </StackLayout>
+
+            </Grid>
+		</Grid>
+		</ScrollView>
+    </ContentPage>

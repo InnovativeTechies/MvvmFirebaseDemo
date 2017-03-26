@@ -1,12 +1,16 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Facebook.CoreKit;
 using Firebase.Auth;
+using Firebase.CloudMessaging;
 using Foundation;
 using GalaSoft.MvvmLight.Ioc;
 using MvvmLightFirebaseDemo.AuthManagers;
 using MvvmLightFirebaseDemo.iOS.implementations;
 using MvvmLightFirebaseDemo.Models;
+using MvvmLightFirebaseDemo.Services;
 using UIKit;
+using UserNotifications;
 
 namespace MvvmLightFirebaseDemo.iOS
 {
@@ -14,8 +18,10 @@ namespace MvvmLightFirebaseDemo.iOS
     // User Interface of the application, as well as listening (and optionally responding) to 
     // application events from iOS.
     [Register("AppDelegate")]
-    public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
+	public partial class AppDelegate : global::Xamarin.Forms.Platform.iOS.FormsApplicationDelegate
     {
+              
+
         //
         // This method is invoked when the application has loaded and is ready to run. In this 
         // method you should instantiate the window, load the UI into it and then make the window
@@ -28,14 +34,11 @@ namespace MvvmLightFirebaseDemo.iOS
 
             App.LoadConfig();
 
-            //Settings.AppID = ConfigurationManager.AppSettings["FacebookAppId"];
-            //Settings.DisplayName = ConfigurationManager.AppSettings["FacebookDisplayName"];
-
             Firebase.Analytics.App.Configure();
 
 			SimpleIoc.Default.Register<IFirebaseManager, FirebaseManager>();
 			SimpleIoc.Default.Register<IFacebookManager, FacebookManager>();
-
+            SimpleIoc.Default.Register<ICommentService, CommentService>();
 
             global::Xamarin.Forms.Forms.Init();
             LoadApplication(new App());
@@ -45,12 +48,21 @@ namespace MvvmLightFirebaseDemo.iOS
             return base.FinishedLaunching(app, options);
         }
 
+
+
+        public override void DidEnterBackground(UIApplication application)
+		{
+			// Use this method to release shared resources, save user data, invalidate timers and store the application state.
+			// If your application supports background exection this method is called instead of WillTerminate when the user quits.
+		}
+
+
         public override bool OpenUrl(UIApplication application, NSUrl url, string sourceApplication, NSObject annotation)
         {
             // We need to handle URLs by passing them to their own OpenUrl in order to make the SSO authentication works.
             return ApplicationDelegate.SharedInstance.OpenUrl(application, url, sourceApplication, annotation);
         }
 
-       
+
     }
 }

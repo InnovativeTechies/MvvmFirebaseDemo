@@ -2,11 +2,14 @@
 using AutoMapper;
 using MvvmLightFirebaseDemo.Models;
 using Firebase.Auth;
+using Firebase.Messaging;
 using MvvmLightFirebaseDemo.AuthManagers;
 using Newtonsoft.Json;
 using PerpetualEngine.Storage;
 using FirebaseUser = MvvmLightFirebaseDemo.Models.FirebaseUser;
-using Xamarin.Forms;
+using Firebase.Database;
+using GalaSoft.MvvmLight.Ioc;
+using MvvmLightFirebaseDemo.Services;
 
 namespace MvvmLightFirebaseDemo.Droid.implementations
 {
@@ -16,8 +19,11 @@ namespace MvvmLightFirebaseDemo.Droid.implementations
         public FirebaseUser User{ get; private set; }
 
         private readonly FirebaseAuth _firebaseAuth = FirebaseAuth.Instance;
+        private readonly FirebaseDatabase _database = FirebaseDatabase.Instance;
         private Firebase.Auth.FirebaseUser _user;
-        private readonly SimpleStorage _storage = SimpleStorage.EditGroup("data");
+		private readonly SimpleStorage _storage = SimpleStorage.EditGroup("data");
+        private IChildEventListener _databaseChildListener;
+        private string _topic;
 
         public async Task<FirebaseUser> FirebaseLoginWithFacebookAsync(string token)
         {
@@ -56,6 +62,25 @@ namespace MvvmLightFirebaseDemo.Droid.implementations
 
         }
 
+        public async Task<GeneralResponse> SendComment(string topic, string comment)
+        {
+            var task = new Task<GeneralResponse>(() =>
+            {
+
+                var commentItem = new Comment { Text = comment, User = User };
+
+                _database.GetReference(topic).Push().SetValue(JsonConvert.SerializeObject(commentItem));
+
+                return new GeneralResponse{IsOK = true};
+            });
+
+            task.Start();
+
+
+            return await task;
+
+        }
+
         public async Task<GeneralResponse> LogoutAsync()
         {
 
@@ -76,6 +101,25 @@ namespace MvvmLightFirebaseDemo.Droid.implementations
 
 			return await task;
         }
+
+        public async Task<GeneralResponse> InitTopic(string topic)
+        {
+
+            CheckAndLoadDatabaseListener();
+
+            var task = new Task<GeneralResponse>(() =>
+            {
+
+                _database.GetReference(topic).AddChildEventListener(_databaseChildListener);
+
+                return new GeneralResponse{IsOK = true};
+            });
+
+            task.Start();
+
+            return await task;
+        }
+
 
         public void LoadUser()
         {
@@ -110,6 +154,14 @@ namespace MvvmLightFirebaseDemo.Droid.implementations
 
             User.IsOK = _user != null;
 
+        }
+
+        private void CheckAndLoadDatabaseListener()
+        {
+            if (_databaseChildListener == null)
+            {
+                _databaseChildListener = (CommentService)SimpleIoc.Default.GetInstance<ICommentService>();
+            }
         }
 
     }
